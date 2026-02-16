@@ -1,0 +1,8 @@
+flask>=3.0
+flask-cors>=6.0
+pdfplumber>=0.11
+rapidfuzz>=3.0
+thefuzz>=0.22
+requests>=2.31
+beautifulsoup4>=4.12
+Levenshtein>=0.25

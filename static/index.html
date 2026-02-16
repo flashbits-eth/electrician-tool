@@ -1,0 +1,1498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ABM Electrical Estimator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Titillium+Web:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0c1220;
+    --surface: #111a2e;
+    --surface2: #182440;
+    --border: #243356;
+    --text: #e8ecf4;
+    --text2: #8a97b8;
+    --accent: #2563c4;
+    --accent-dim: #1d4fa0;
+    --accent-light: #768ebe;
+    --brand-orange: #ff8c26;
+    --brand-orange-dim: #d45601;
+    --green: #34d399;
+    --yellow: #fbbf24;
+    --red: #f87171;
+    --orange: #ff8c26;
+    --radius: 8px;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: 'Titillium Web', 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    font-size: 15px;
+  }
+
+  /* --- Header --- */
+  .header-bar {
+    height: 4px;
+    background: linear-gradient(90deg, var(--brand-orange) 0%, var(--brand-orange) 30%, var(--accent) 100%);
+  }
+  .header {
+    background: linear-gradient(180deg, #162040 0%, #111a2e 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 18px 40px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .header .logo-area {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .header .logo-area img {
+    height: 36px;
+    width: auto;
+  }
+  .header .logo-divider {
+    width: 1px;
+    height: 32px;
+    background: var(--border);
+  }
+  .header h1 { font-size: 24px; font-weight: 600; letter-spacing: -0.3px; }
+  .header .subtitle { color: var(--text2); font-size: 14px; font-weight: 300; letter-spacing: 0.3px; }
+
+  /* --- Tabs --- */
+  .tabs {
+    display: flex;
+    background: linear-gradient(135deg, #0e1830 0%, #131f38 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 0 40px;
+    gap: 0;
+  }
+  .tab {
+    padding: 14px 28px;
+    cursor: pointer;
+    font-size: 16px;
+    color: var(--text2);
+    border-bottom: 3px solid transparent;
+    transition: all .15s;
+    user-select: none;
+    position: relative;
+  }
+  .tab:hover { color: var(--text); background: rgba(255,255,255,.03); }
+  .tab.active {
+    color: var(--brand-orange);
+    border-bottom-color: var(--brand-orange);
+    background: rgba(255,140,38,.04);
+  }
+  .tab .tab-badge {
+    position: absolute;
+    top: 8px;
+    right: 4px;
+    background: var(--brand-orange);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    min-width: 20px;
+    height: 20px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 5px;
+  }
+  .tab .tab-badge:empty { display: none; }
+
+  /* --- Main Layout --- */
+  .main { padding: 28px 40px; max-width: 1600px; margin: 0 auto; }
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* --- Cards --- */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+  .card h2 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .card h2 .badge {
+    font-size: 13px;
+    padding: 3px 10px;
+    border-radius: 10px;
+    font-weight: 500;
+  }
+
+  /* --- Buttons --- */
+  .btn {
+    padding: 10px 22px;
+    border-radius: 6px;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    transition: all .15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 40px;
+  }
+  .btn-primary {
+    background: var(--brand-orange);
+    color: #fff;
+  }
+  .btn-primary:hover { background: var(--brand-orange-dim); }
+  .btn-success {
+    background: var(--accent);
+    color: #fff;
+  }
+  .btn-success:hover { background: var(--accent-dim); }
+  .btn-secondary {
+    background: var(--surface2);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .btn-secondary:hover { background: var(--border); }
+  .btn-danger {
+    background: #991b1b;
+    color: #fca5a5;
+  }
+  .btn-danger:hover { background: #7f1d1d; }
+  .btn-sm { padding: 7px 16px; font-size: 14px; }
+  .btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  /* --- Inputs --- */
+  input, select, textarea {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-size: 15px;
+    font-family: inherit;
+    width: 100%;
+    outline: none;
+    transition: border-color .15s;
+  }
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--accent-light);
+  }
+  textarea { resize: vertical; min-height: 140px; }
+  label {
+    display: block;
+    font-size: 14px;
+    color: var(--text2);
+    margin-bottom: 6px;
+    font-weight: 500;
+  }
+
+  /* --- Tables --- */
+  .table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 15px;
+  }
+  thead th {
+    background: var(--surface2);
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--text2);
+    text-transform: uppercase;
+    letter-spacing: .3px;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    white-space: nowrap;
+  }
+  tbody td {
+    padding: 10px 16px;
+    border-top: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  tbody tr:hover { background: var(--surface2); }
+  .text-right { text-align: right; }
+  .text-center { text-align: center; }
+  .mono { font-family: 'Cascadia Code', 'Fira Code', monospace; font-size: 14px; }
+
+  /* --- Confidence badges --- */
+  .confidence-high {
+    color: var(--green);
+    background: rgba(52,211,153,.12);
+    padding: 4px 10px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .confidence-med {
+    color: var(--yellow);
+    background: rgba(251,191,36,.12);
+    padding: 4px 10px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .confidence-low {
+    color: var(--red);
+    background: rgba(248,113,113,.12);
+    padding: 4px 10px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+
+  /* --- Summary stat cards --- */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+  }
+  .stat-card.stat-primary {
+    background: linear-gradient(135deg, #162040 0%, #1a2a4a 100%);
+    border-color: var(--brand-orange);
+    border-width: 2px;
+    grid-column: span 1;
+    padding: 24px;
+  }
+  .stat-card.stat-primary .stat-label {
+    color: var(--brand-orange);
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .stat-card.stat-primary .stat-value {
+    font-size: 36px;
+  }
+  .stat-card .stat-label {
+    font-size: 13px;
+    text-transform: uppercase;
+    color: var(--text2);
+    letter-spacing: .5px;
+    margin-bottom: 6px;
+  }
+  .stat-card .stat-value {
+    font-size: 26px;
+    font-weight: 700;
+  }
+  .stat-card .stat-value.green { color: var(--green); }
+  .stat-card .stat-value.blue  { color: var(--accent-light); }
+  .stat-card .stat-value.yellow { color: var(--yellow); }
+  .stat-card .stat-value.red   { color: var(--red); }
+  .stat-card .stat-value.orange { color: var(--brand-orange); }
+
+  /* --- Grid helpers --- */
+  .row { display: flex; gap: 16px; margin-bottom: 16px; }
+  .row > * { flex: 1; }
+  .row > .col-2 { flex: 2; }
+  .row > .col-3 { flex: 3; }
+  .row > .col-auto { flex: 0 0 auto; }
+
+  /* --- Parts builder table --- */
+  #parts-table input {
+    width: 100%;
+    padding: 8px 12px;
+    background: transparent;
+    border: 1px solid transparent;
+    font-size: 15px;
+  }
+  #parts-table input:focus {
+    background: var(--bg);
+    border-color: var(--accent-light);
+  }
+  #parts-table td { padding: 6px 8px; }
+  #parts-table .row-num {
+    color: var(--text2);
+    font-size: 14px;
+    width: 36px;
+    text-align: center;
+  }
+  #parts-table .del-btn {
+    cursor: pointer;
+    color: var(--text2);
+    font-size: 20px;
+    padding: 4px 8px;
+    border-radius: 4px;
+  }
+  #parts-table .del-btn:hover { color: var(--red); background: rgba(248,113,113,.1); }
+
+  /* --- DB checkbox styling --- */
+  .db-check {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: var(--brand-orange);
+  }
+  tbody tr.selected-row {
+    background: rgba(255,140,38,.06);
+  }
+  tbody tr.selected-row:hover {
+    background: rgba(255,140,38,.12);
+  }
+
+  /* --- Selected items floating bar --- */
+  .selection-bar {
+    position: sticky;
+    bottom: 0;
+    background: var(--surface);
+    border-top: 2px solid var(--brand-orange);
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    z-index: 10;
+    box-shadow: 0 -4px 16px rgba(0,0,0,.4);
+  }
+  .selection-bar .sel-count {
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  /* --- Settings row --- */
+  .settings-bar {
+    display: flex;
+    gap: 16px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+  .settings-bar .field { min-width: 160px; }
+  .settings-bar .field.narrow { max-width: 150px; }
+
+  /* --- Paste modal --- */
+  .modal-bg {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.6);
+    z-index: 500;
+    display: none;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal-bg.show { display: flex; }
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px;
+    width: 650px;
+    max-width: 90vw;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+  .modal h3 { margin-bottom: 14px; font-size: 20px; }
+
+  /* --- Loading spinner --- */
+  .spinner {
+    display: inline-block;
+    width: 16px; height: 16px;
+    border: 2px solid var(--border);
+    border-top-color: var(--brand-orange);
+    border-radius: 50%;
+    animation: spin .6s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* --- Scrollable table --- */
+  .table-scroll {
+    max-height: 600px;
+    overflow-y: auto;
+  }
+
+  /* --- Pagination --- */
+  .pagination {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+    justify-content: center;
+  }
+  .pagination span { font-size: 15px; color: var(--text2); }
+
+  /* --- Toast / status --- */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: var(--surface);
+    border: 1px solid var(--brand-orange);
+    color: var(--brand-orange);
+    padding: 14px 24px;
+    border-radius: var(--radius);
+    font-size: 16px;
+    z-index: 999;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all .3s;
+  }
+  .toast.show { opacity: 1; transform: translateY(0); }
+
+  /* --- History cards --- */
+  .history-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    transition: all .15s;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  .history-card:hover {
+    border-color: var(--accent-light);
+    background: var(--surface2);
+  }
+  .history-card.active {
+    border-color: var(--brand-orange);
+    box-shadow: 0 0 0 1px var(--brand-orange);
+  }
+  .history-card .hist-date {
+    font-size: 13px;
+    color: var(--text2);
+    white-space: nowrap;
+  }
+  .history-card .hist-summary {
+    flex: 1;
+    font-size: 15px;
+  }
+  .history-card .hist-total {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--green);
+    white-space: nowrap;
+  }
+  .history-card .hist-parts {
+    font-size: 13px;
+    color: var(--text2);
+    white-space: nowrap;
+  }
+  .history-card .hist-delete {
+    color: var(--text2);
+    font-size: 18px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    border: none;
+    background: none;
+  }
+  .history-card .hist-delete:hover {
+    color: var(--red);
+    background: rgba(248,113,113,.1);
+  }
+
+  /* --- DB Group Headers --- */
+  .db-group-header td {
+    background: var(--surface2) !important;
+    padding: 10px 16px !important;
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--brand-orange);
+    letter-spacing: .2px;
+    border-top: 2px solid var(--border) !important;
+    cursor: default !important;
+  }
+  .db-group-header td .group-category {
+    color: var(--text);
+    font-weight: 400;
+    margin-left: 8px;
+    font-size: 13px;
+  }
+  .db-group-header:hover { background: var(--surface2) !important; }
+
+  /* --- Estimate name input in history --- */
+  .hist-name {
+    font-weight: 600;
+    color: var(--text);
+    font-size: 15px;
+  }
+  .hist-parts-preview {
+    font-size: 13px;
+    color: var(--text2);
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 400px;
+  }
+
+  /* --- Empty state --- */
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text2);
+  }
+  .empty-state .empty-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+    opacity: .6;
+  }
+  .empty-state .empty-title {
+    font-size: 18px;
+    color: var(--text);
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+  .empty-state .empty-desc {
+    font-size: 15px;
+    max-width: 400px;
+    margin: 0 auto;
+    line-height: 1.5;
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<div class="header-bar"></div>
+<div class="header">
+  <div class="logo-area">
+    <img src="https://cdn.brandfetch.io/idMXiSE4-d/theme/dark/logo.svg" alt="ABM" onerror="this.style.display='none'">
+    <div class="logo-divider"></div>
+  </div>
+  <div>
+    <h1>Electrical Estimator</h1>
+    <div class="subtitle">INTERNAL TOOL &mdash; Labor units + price lookup + cost estimation</div>
+  </div>
+</div>
+
+<!-- ===== TABS ===== -->
+<div class="tabs">
+  <div class="tab active" data-tab="database">Labor Database</div>
+  <div class="tab" data-tab="estimate">Estimate Builder <span class="tab-badge" id="builder-badge"></span></div>
+  <div class="tab" data-tab="results">Results &amp; Reports</div>
+</div>
+
+<!-- ===== MAIN ===== -->
+<div class="main">
+
+  <!-- ===================== TAB 1: LABOR DATABASE ===================== -->
+  <div id="tab-database" class="panel active">
+    <div class="card">
+      <h2>Browse Labor Units Database
+        <span class="badge" style="background:var(--surface2);color:var(--text2)" id="db-total">4,396 entries</span>
+        <span style="margin-left:auto" class="btn-group">
+          <button class="btn btn-success btn-sm" onclick="addSelectedToBuilder()" id="add-selected-btn" style="display:none">
+            Add Selected to Builder
+          </button>
+        </span>
+      </h2>
+
+      <div class="row" style="margin-bottom: 12px">
+        <div class="col-2">
+          <label>Search</label>
+          <input type="text" id="db-search" placeholder="Search by keyword (e.g. 3/4 emt, beam clamp, #10 wire)...">
+        </div>
+        <div>
+          <label>Section Filter</label>
+          <select id="db-section-filter"><option value="">All Sections</option></select>
+        </div>
+      </div>
+
+      <div class="table-wrap table-scroll" id="db-table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th style="width:40px"><input type="checkbox" class="db-check" id="db-select-all" title="Select all on page"></th>
+              <th>Item</th>
+              <th class="text-right">Easy</th>
+              <th class="text-right">Average</th>
+              <th class="text-right">Difficult</th>
+              <th class="text-right">Remodel</th>
+              <th class="text-right">Old Work</th>
+              <th>Unit</th>
+            </tr>
+          </thead>
+          <tbody id="db-body"></tbody>
+        </table>
+      </div>
+      <div class="pagination" id="db-pagination"></div>
+    </div>
+
+    <!-- Selection bar at bottom -->
+    <div class="selection-bar" id="selection-bar" style="display:none">
+      <div class="sel-count"><span id="sel-count-num">0</span> items selected</div>
+      <div class="btn-group">
+        <button class="btn btn-secondary btn-sm" onclick="clearDbSelection()">Clear Selection</button>
+        <button class="btn btn-success" onclick="addSelectedToBuilder()">Add to Estimate Builder &rarr;</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== TAB 2: ESTIMATE BUILDER ===================== -->
+  <div id="tab-estimate" class="panel">
+
+    <!-- Settings -->
+    <div class="card">
+      <h2>Settings</h2>
+      <div class="settings-bar">
+        <div class="field" style="min-width:220px">
+          <label>Estimate Name</label>
+          <input type="text" id="estimate-name" placeholder="e.g. Building A - 2nd Floor" value="">
+        </div>
+        <div class="field narrow">
+          <label>Labor Rate ($/hr)</label>
+          <input type="number" id="labor-rate" value="175" step="5" min="0">
+        </div>
+        <div class="field narrow">
+          <label>Condition</label>
+          <select id="condition">
+            <option value="Easy">Easy</option>
+            <option value="Average" selected>Average</option>
+            <option value="Difficult">Difficult</option>
+            <option value="Remodel">Remodel</option>
+            <option value="Old_Work">Old Work</option>
+          </select>
+        </div>
+        <div class="field narrow">
+          <label>&nbsp;</label>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:15px;color:var(--text)">
+            <input type="checkbox" id="fetch-prices" style="width:auto" checked> Fetch Platt prices
+          </label>
+        </div>
+        <div class="col-auto" style="margin-left:auto">
+          <label>&nbsp;</label>
+          <div class="btn-group">
+            <button class="btn btn-secondary" onclick="openPasteModal()">Paste Parts List</button>
+            <button class="btn btn-secondary" onclick="loadSampleParts()">Load Sample Data</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Parts Table -->
+    <div class="card">
+      <h2>
+        Parts List
+        <span class="badge" style="background:var(--surface2);color:var(--text2)"
+              id="parts-count">0 parts</span>
+      </h2>
+      <div class="table-wrap">
+        <table id="parts-table">
+          <thead>
+            <tr>
+              <th style="width:30px">#</th>
+              <th style="min-width:320px">Part Description</th>
+              <th style="width:140px">Quantity</th>
+              <th style="width:160px">Platt ID</th>
+              <th style="width:30px"></th>
+            </tr>
+          </thead>
+          <tbody id="parts-body"></tbody>
+        </table>
+      </div>
+      <div style="margin-top:10px" class="btn-group">
+        <button class="btn btn-secondary btn-sm" onclick="addPartRow()">+ Add Row</button>
+        <button class="btn btn-secondary btn-sm" onclick="addPartRows(5)">+ Add 5 Rows</button>
+        <button class="btn btn-danger btn-sm" onclick="clearParts()" style="margin-left:auto">Clear All</button>
+      </div>
+    </div>
+
+    <!-- Run button -->
+    <div style="text-align:center; margin: 20px 0">
+      <button class="btn btn-primary" style="padding:14px 48px; font-size:17px" onclick="runEstimate()" id="run-btn">
+        Run Estimate
+      </button>
+    </div>
+  </div>
+
+  <!-- ===================== TAB 3: RESULTS ===================== -->
+  <div id="tab-results" class="panel">
+    <div id="no-results" class="empty-state">
+      <div class="empty-icon">&#128203;</div>
+      <div class="empty-title">No estimate results yet</div>
+      <div class="empty-desc">Select items from the Labor Database, add them to the Estimate Builder, then click Run Estimate to see your cost breakdown here.</div>
+    </div>
+
+    <div id="results-content" style="display:none">
+      <!-- History selector -->
+      <div class="card" id="history-card">
+        <h2>Estimate History
+          <span class="badge" style="background:var(--surface2);color:var(--text2)" id="history-count">0</span>
+          <span style="margin-left:auto">
+            <button class="btn btn-danger btn-sm" onclick="clearHistory()" id="clear-history-btn" style="display:none">Clear All History</button>
+          </span>
+        </h2>
+        <div id="history-list"></div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-row" id="stats-row"></div>
+
+      <!-- Results table -->
+      <div class="card">
+        <h2>Estimate Details
+          <span style="margin-left:auto">
+            <button class="btn btn-secondary btn-sm" onclick="exportCSV()">Export CSV</button>
+            <button class="btn btn-secondary btn-sm" onclick="exportReport()">Export Report</button>
+          </span>
+        </h2>
+        <div class="table-wrap" style="max-height:500px; overflow-y:auto">
+          <table>
+            <thead>
+              <tr>
+                <th>Part</th>
+                <th class="text-right">Qty</th>
+                <th>Labor Match</th>
+                <th class="text-center">Confidence</th>
+                <th class="text-right">Labor Hrs</th>
+                <th class="text-right">Labor Cost</th>
+                <th>Platt Product</th>
+                <th class="text-right">Total</th>
+              </tr>
+            </thead>
+            <tbody id="results-body"></tbody>
+            <tfoot id="results-footer"></tfoot>
+          </table>
+        </div>
+      </div>
+
+      <!-- Action Items -->
+      <div class="card" id="action-items-card" style="display:none">
+        <h2 style="color:var(--yellow)">Action Items</h2>
+        <div id="action-items"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== PASTE MODAL ===== -->
+<div class="modal-bg" id="paste-modal">
+  <div class="modal">
+    <h3>Paste Parts List</h3>
+    <p style="font-size:15px;color:var(--text2);margin-bottom:14px">
+      Paste one part per line. Format: <code>description, quantity, platt_id (optional)</code><br>
+      Examples:<br>
+      <code>3/4 emt, 240 feet</code><br>
+      <code>beam clamp with 3/4 strap, 40, 0013209</code>
+    </p>
+    <textarea id="paste-text" placeholder="3/4 emt, 240 feet
+3/4 couplings, 30
+#10 awg wire, 2500 feet"></textarea>
+    <div class="btn-group" style="margin-top:12px">
+      <button class="btn btn-primary" onclick="parsePastedParts()">Import</button>
+      <button class="btn btn-secondary" onclick="closePasteModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== TOAST ===== -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================================
+// STATE
+// ============================================================================
+let estimateResults = null;
+let estimateTotals = null;
+let dbPage = 1;
+let dbSearchTimeout = null;
+let dbSelectedItems = new Map(); // key: "Section|Category|Item" => {Section, Category, Item, ...}
+let estimateHistory = JSON.parse(localStorage.getItem('estimateHistory') || '[]');
+let activeHistoryIdx = -1;
+
+// ============================================================================
+// TABS
+// ============================================================================
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+    if (tab.dataset.tab === 'database') loadDbPage();
+  });
+});
+
+// ============================================================================
+// TOAST
+// ============================================================================
+function showToast(msg, duration = 3000) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), duration);
+}
+
+// ============================================================================
+// PARTS TABLE (Estimate Builder)
+// ============================================================================
+function addPartRow(desc = '', qty = '', plattId = '') {
+  const tbody = document.getElementById('parts-body');
+  const rowNum = tbody.children.length + 1;
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td class="row-num">${rowNum}</td>
+    <td><input type="text" class="part-desc" value="${esc(desc)}" placeholder="e.g. 3/4 emt"></td>
+    <td><input type="text" class="part-qty" value="${esc(qty)}" placeholder="e.g. 240 feet"></td>
+    <td><input type="text" class="part-platt" value="${esc(plattId)}" placeholder="e.g. 0013209"></td>
+    <td><span class="del-btn" onclick="deletePartRow(this)">&times;</span></td>
+  `;
+  tbody.appendChild(tr);
+  updatePartCount();
+}
+
+function addPartRows(n) {
+  for (let i = 0; i < n; i++) addPartRow();
+}
+
+function deletePartRow(el) {
+  el.closest('tr').remove();
+  renumberParts();
+  updatePartCount();
+}
+
+function clearParts() {
+  document.getElementById('parts-body').innerHTML = '';
+  updatePartCount();
+  addPartRows(3);
+}
+
+function renumberParts() {
+  document.querySelectorAll('#parts-body tr').forEach((tr, i) => {
+    tr.querySelector('.row-num').textContent = i + 1;
+  });
+}
+
+function updatePartCount() {
+  const rows = document.querySelectorAll('#parts-body tr');
+  const filled = [...rows].filter(r => r.querySelector('.part-desc').value.trim()).length;
+  document.getElementById('parts-count').textContent = `${filled} parts`;
+  updateBuilderBadge();
+}
+
+function updateBuilderBadge() {
+  const rows = document.querySelectorAll('#parts-body tr');
+  const filled = [...rows].filter(r => r.querySelector('.part-desc').value.trim()).length;
+  const badge = document.getElementById('builder-badge');
+  badge.textContent = filled > 0 ? filled : '';
+}
+
+function getPartsFromTable() {
+  const rows = document.querySelectorAll('#parts-body tr');
+  const parts = [];
+  rows.forEach(r => {
+    const desc = r.querySelector('.part-desc').value.trim();
+    const qty  = r.querySelector('.part-qty').value.trim();
+    const pid  = r.querySelector('.part-platt').value.trim();
+    if (desc) parts.push({ description: desc, quantity: qty || '1', platt_id: pid });
+  });
+  return parts;
+}
+
+function esc(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/'/g, '&#39;');
+}
+
+// ============================================================================
+// PASTE MODAL
+// ============================================================================
+function openPasteModal() {
+  document.getElementById('paste-modal').classList.add('show');
+  document.getElementById('paste-text').focus();
+}
+function closePasteModal() {
+  document.getElementById('paste-modal').classList.remove('show');
+}
+function parsePastedParts() {
+  const text = document.getElementById('paste-text').value.trim();
+  if (!text) return;
+  // Remove empty rows before importing
+  removeEmptyRows();
+  const lines = text.split('\n').filter(l => l.trim());
+  lines.forEach(line => {
+    const parts = line.split(',').map(s => s.trim());
+    addPartRow(parts[0] || '', parts[1] || '', parts[2] || '');
+  });
+  closePasteModal();
+  document.getElementById('paste-text').value = '';
+  updatePartCount();
+  showToast(`Imported ${lines.length} parts`);
+}
+
+function removeEmptyRows() {
+  document.querySelectorAll('#parts-body tr').forEach(tr => {
+    if (!tr.querySelector('.part-desc').value.trim()) {
+      tr.remove();
+    }
+  });
+  renumberParts();
+}
+
+// ============================================================================
+// SAMPLE DATA
+// ============================================================================
+function loadSampleParts() {
+  document.getElementById('parts-body').innerHTML = '';
+  const samples = [
+    ['3/4" emt', '240 feet', ''],
+    ['3/4" couplings', '30', ''],
+    ['3/4" connectors', '20', ''],
+    ['beam clamps with 3/4" strap', '40', '0013209'],
+    ['beam clamp with 1/4" hole', '8', '0002448'],
+    ['#10 awg', '2500 feet', ''],
+    ['wire nuts, bolts, washer, etc', '1', ''],
+    ['Fans', '6', ''],
+    ['Strut', '20', ''],
+    ['4 square box', '8', ''],
+    ['pilot bits', '6', ''],
+    ['heavy duty hex head tech screws', '50', ''],
+    ['breaker square D 20a breaker', '2', ''],
+  ];
+  samples.forEach(s => addPartRow(s[0], s[1], s[2]));
+  showToast('Loaded 13 sample parts');
+}
+
+// ============================================================================
+// DB SELECTION (Checkboxes)
+// ============================================================================
+function dbItemKey(r) {
+  return `${r.Section}|${r.Category}|${r.Item}`;
+}
+
+function toggleDbItem(checkbox, rowData) {
+  const key = dbItemKey(rowData);
+  if (checkbox.checked) {
+    dbSelectedItems.set(key, rowData);
+  } else {
+    dbSelectedItems.delete(key);
+  }
+  // Highlight row
+  const tr = checkbox.closest('tr');
+  if (checkbox.checked) {
+    tr.classList.add('selected-row');
+  } else {
+    tr.classList.remove('selected-row');
+  }
+  updateSelectionUI();
+}
+
+function toggleSelectAll() {
+  const selectAll = document.getElementById('db-select-all');
+  const checkboxes = document.querySelectorAll('#db-body .db-check');
+  checkboxes.forEach(cb => {
+    if (cb.checked !== selectAll.checked) {
+      cb.click();
+    }
+  });
+}
+
+function clearDbSelection() {
+  dbSelectedItems.clear();
+  document.querySelectorAll('#db-body .db-check').forEach(cb => {
+    cb.checked = false;
+    cb.closest('tr').classList.remove('selected-row');
+  });
+  document.getElementById('db-select-all').checked = false;
+  updateSelectionUI();
+}
+
+function updateSelectionUI() {
+  const count = dbSelectedItems.size;
+  const bar = document.getElementById('selection-bar');
+  const btn = document.getElementById('add-selected-btn');
+  const countEl = document.getElementById('sel-count-num');
+
+  if (count > 0) {
+    bar.style.display = 'flex';
+    btn.style.display = 'inline-flex';
+    btn.textContent = `Add ${count} Selected to Builder`;
+    countEl.textContent = count;
+  } else {
+    bar.style.display = 'none';
+    btn.style.display = 'none';
+  }
+}
+
+function addSelectedToBuilder() {
+  if (dbSelectedItems.size === 0) {
+    showToast('No items selected');
+    return;
+  }
+
+  // Remove empty rows first
+  removeEmptyRows();
+
+  let added = 0;
+  dbSelectedItems.forEach((item) => {
+    const desc = `${item.Section} ${item.Category} ${item.Item}`;
+    addPartRow(desc, '1', '');
+    added++;
+  });
+
+  // Clear selection
+  clearDbSelection();
+
+  // Switch to builder tab
+  document.querySelector('[data-tab="estimate"]').click();
+  showToast(`Added ${added} items to Estimate Builder`);
+}
+
+// Select-all checkbox handler
+document.getElementById('db-select-all').addEventListener('change', toggleSelectAll);
+
+// ============================================================================
+// RUN ESTIMATE
+// ============================================================================
+async function runEstimate() {
+  const parts = getPartsFromTable();
+  if (!parts.length) {
+    showToast('Add some parts first!');
+    return;
+  }
+
+  const btn = document.getElementById('run-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Running...';
+
+  try {
+    const res = await fetch('/api/estimate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        parts,
+        labor_rate: parseFloat(document.getElementById('labor-rate').value) || 175,
+        condition: document.getElementById('condition').value,
+        fetch_prices: document.getElementById('fetch-prices').checked,
+      })
+    });
+    const data = await res.json();
+    if (data.error) {
+      showToast('Error: ' + data.error);
+      return;
+    }
+    estimateResults = data.results;
+    estimateTotals = data.totals;
+
+    // Save to history
+    const estimateName = document.getElementById('estimate-name').value.trim() || `Estimate #${estimateHistory.length + 1}`;
+    const historyEntry = {
+      id: Date.now(),
+      name: estimateName,
+      date: new Date().toLocaleString(),
+      results: data.results,
+      totals: data.totals,
+      laborRate: parseFloat(document.getElementById('labor-rate').value) || 175,
+      condition: document.getElementById('condition').value,
+    };
+    estimateHistory.unshift(historyEntry);
+    saveHistory();
+    activeHistoryIdx = 0;
+
+    renderResults();
+    renderHistory();
+
+    // Clear the builder after running
+    document.getElementById('parts-body').innerHTML = '';
+    document.getElementById('estimate-name').value = '';
+    addPartRows(3);
+    updatePartCount();
+
+    // Switch to results tab
+    document.querySelector('[data-tab="results"]').click();
+    showToast('Estimate complete! Builder cleared.');
+  } catch (e) {
+    showToast('Error: ' + e.message);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = 'Run Estimate';
+  }
+}
+
+// ============================================================================
+// RENDER RESULTS
+// ============================================================================
+function renderResults() {
+  if (!estimateResults) return;
+  document.getElementById('no-results').style.display = 'none';
+  document.getElementById('results-content').style.display = 'block';
+
+  const t = estimateTotals;
+  const laborRate = parseFloat(document.getElementById('labor-rate').value) || 175;
+
+  // Stats — Total Cost is the hero stat
+  document.getElementById('stats-row').innerHTML = `
+    <div class="stat-card stat-primary">
+      <div class="stat-label">Total Estimated Cost</div>
+      <div class="stat-value orange">$${t.total_cost.toLocaleString(undefined,{minimumFractionDigits:2})}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Labor Cost</div>
+      <div class="stat-value green">$${t.total_labor_cost.toLocaleString(undefined,{minimumFractionDigits:2})}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Material Cost</div>
+      <div class="stat-value">${t.total_material_cost > 0 ? '$'+t.total_material_cost.toLocaleString(undefined,{minimumFractionDigits:2}) : 'N/A'}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Labor Hours</div>
+      <div class="stat-value blue">${t.total_labor_hours.toFixed(1)}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Parts</div>
+      <div class="stat-value blue">${t.part_count}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Needs Review</div>
+      <div class="stat-value ${(t.needs_review + t.low_confidence) > 0 ? 'red' : 'green'}">${t.needs_review + t.low_confidence}</div>
+    </div>
+  `;
+
+  // Table
+  const tbody = document.getElementById('results-body');
+  tbody.innerHTML = '';
+  estimateResults.forEach(r => {
+    const conf = r.labor_confidence || 0;
+    let confClass = 'confidence-high';
+    let confLabel = `${conf}%`;
+    if (conf <= 30) { confClass = 'confidence-low'; confLabel = 'Review'; }
+    else if (conf <= 50) { confClass = 'confidence-med'; confLabel = `${conf}%`; }
+
+    // Build Platt link column
+    let plattCell = '-';
+    if (r.platt_name && r.platt_url) {
+      const shortName = r.platt_name.length > 40 ? r.platt_name.substring(0, 40) + '...' : r.platt_name;
+      plattCell = `<a href="${esc(r.platt_url)}" target="_blank"
+        style="color:var(--accent-light);text-decoration:none;font-size:13px"
+        title="${esc(r.platt_name)}">${esc(shortName)}</a>`;
+      if (r.platt_price > 0) {
+        plattCell += `<br><span class="mono" style="color:var(--green)">$${r.platt_price.toFixed(2)}</span>`;
+      }
+    } else if (r.platt_url && r.platt_url.includes('platt.com')) {
+      plattCell = `<a href="${esc(r.platt_url)}" target="_blank"
+        style="color:var(--text2);text-decoration:none;font-size:13px">Search on Platt</a>`;
+    }
+
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${esc(r.part)}</td>
+      <td class="text-right mono">${r.quantity}${r.qty_unit ? ' '+r.qty_unit : ''}</td>
+      <td style="font-size:13px;max-width:280px;overflow:hidden;text-overflow:ellipsis"
+          title="${esc(r.labor_match || '')}">${esc(r.labor_match || 'N/A')}</td>
+      <td class="text-center"><span class="${confClass}">${confLabel}</span></td>
+      <td class="text-right mono">${r.labor_hours.toFixed(2)}</td>
+      <td class="text-right mono">$${r.labor_cost.toFixed(2)}</td>
+      <td style="max-width:260px">${plattCell}</td>
+      <td class="text-right mono" style="font-weight:600">$${r.total_cost.toFixed(2)}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  // Footer totals
+  document.getElementById('results-footer').innerHTML = `
+    <tr style="font-weight:700;background:var(--surface2)">
+      <td>TOTALS</td>
+      <td></td><td></td><td></td>
+      <td class="text-right mono">${t.total_labor_hours.toFixed(2)}</td>
+      <td class="text-right mono">$${t.total_labor_cost.toFixed(2)}</td>
+      <td></td>
+      <td class="text-right mono">$${t.total_cost.toFixed(2)}</td>
+    </tr>
+  `;
+
+  // Action items
+  const needsReview = estimateResults.filter(r => (r.labor_confidence || 0) <= 50);
+  const card = document.getElementById('action-items-card');
+  if (needsReview.length) {
+    card.style.display = 'block';
+    document.getElementById('action-items').innerHTML = needsReview.map(r => `
+      <div style="padding:8px 0; border-bottom:1px solid var(--border); font-size:15px">
+        <span style="color:${r.labor_confidence <= 30 ? 'var(--red)' : 'var(--yellow)'}; font-weight:600">
+          ${r.labor_confidence <= 30 ? 'NEEDS MANUAL LOOKUP' : 'LOW CONFIDENCE'}
+        </span>
+        &mdash; <strong>${esc(r.part)}</strong>
+        ${r.labor_match !== 'NEEDS MANUAL LOOKUP' ? `<span style="color:var(--text2)"> matched to: ${esc(r.labor_match)}</span>` : ''}
+      </div>
+    `).join('');
+  } else {
+    card.style.display = 'none';
+  }
+}
+
+// ============================================================================
+// HISTORY
+// ============================================================================
+function saveHistory() {
+  localStorage.setItem('estimateHistory', JSON.stringify(estimateHistory));
+}
+
+function renderHistory() {
+  const list = document.getElementById('history-list');
+  const countBadge = document.getElementById('history-count');
+  const clearBtn = document.getElementById('clear-history-btn');
+
+  countBadge.textContent = estimateHistory.length;
+  clearBtn.style.display = estimateHistory.length > 1 ? 'inline-flex' : 'none';
+
+  if (!estimateHistory.length) {
+    list.innerHTML = '<div style="color:var(--text2);font-size:14px;padding:8px 0">No history yet</div>';
+    return;
+  }
+
+  list.innerHTML = estimateHistory.map((h, idx) => {
+    const name = h.name || `Estimate #${idx + 1}`;
+    const partPreview = h.results.slice(0, 3).map(r => r.part).join(', ');
+    const more = h.results.length > 3 ? ` +${h.results.length - 3} more` : '';
+    return `
+    <div class="history-card ${idx === activeHistoryIdx ? 'active' : ''}" onclick="loadHistoryEntry(${idx})">
+      <div class="hist-date">${esc(h.date)}</div>
+      <div class="hist-summary">
+        <div class="hist-name">${esc(name)}</div>
+        <div class="hist-parts-preview">${esc(partPreview)}${more}</div>
+      </div>
+      <div class="hist-parts">${h.totals.part_count} parts</div>
+      <div class="hist-total">$${h.totals.total_cost.toLocaleString(undefined,{minimumFractionDigits:2})}</div>
+      <button class="hist-delete" onclick="event.stopPropagation(); deleteHistoryEntry(${idx})" title="Delete">&times;</button>
+    </div>`;
+  }).join('');
+}
+
+function loadHistoryEntry(idx) {
+  const entry = estimateHistory[idx];
+  if (!entry) return;
+  activeHistoryIdx = idx;
+  estimateResults = entry.results;
+  estimateTotals = entry.totals;
+  renderResults();
+  renderHistory();
+}
+
+function deleteHistoryEntry(idx) {
+  estimateHistory.splice(idx, 1);
+  saveHistory();
+
+  if (estimateHistory.length === 0) {
+    estimateResults = null;
+    estimateTotals = null;
+    activeHistoryIdx = -1;
+    document.getElementById('no-results').style.display = '';
+    document.getElementById('results-content').style.display = 'none';
+  } else {
+    // If we deleted the active one, show the first
+    if (idx === activeHistoryIdx) {
+      activeHistoryIdx = 0;
+      loadHistoryEntry(0);
+    } else if (idx < activeHistoryIdx) {
+      activeHistoryIdx--;
+    }
+    renderHistory();
+  }
+}
+
+function clearHistory() {
+  if (!confirm('Delete all estimate history?')) return;
+  estimateHistory = [];
+  saveHistory();
+  estimateResults = null;
+  estimateTotals = null;
+  activeHistoryIdx = -1;
+  document.getElementById('no-results').style.display = '';
+  document.getElementById('results-content').style.display = 'none';
+  renderHistory();
+  showToast('History cleared');
+}
+
+// ============================================================================
+// EXPORT
+// ============================================================================
+function exportCSV() {
+  if (!estimateResults) return;
+  const headers = ['Part','Quantity','Labor Match','Confidence','Labor Hours','Labor Cost','Material Cost','Total Cost'];
+  let csv = headers.join(',') + '\n';
+  estimateResults.forEach(r => {
+    csv += [
+      `"${r.part}"`, r.quantity, `"${r.labor_match || ''}"`, r.labor_confidence || 0,
+      r.labor_hours, r.labor_cost, r.material_cost, r.total_cost
+    ].join(',') + '\n';
+  });
+  csv += `\n"TOTALS",,,,${estimateTotals.total_labor_hours},${estimateTotals.total_labor_cost},${estimateTotals.total_material_cost},${estimateTotals.total_cost}\n`;
+  downloadBlob(csv, 'project_estimate.csv', 'text/csv');
+  showToast('CSV downloaded');
+}
+
+async function exportReport() {
+  if (!estimateResults) return;
+  try {
+    const res = await fetch('/api/estimate/export', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        results: estimateResults,
+        totals: estimateTotals,
+        labor_rate: parseFloat(document.getElementById('labor-rate').value) || 175,
+      })
+    });
+    const data = await res.json();
+    showToast(data.message || 'Report exported to data/ folder');
+  } catch(e) {
+    showToast('Export error: ' + e.message);
+  }
+}
+
+function downloadBlob(content, filename, type) {
+  const blob = new Blob([content], { type });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// ============================================================================
+// LABOR DATABASE BROWSER
+// ============================================================================
+async function loadDbSections() {
+  try {
+    const res = await fetch('/api/labor/sections');
+    const sections = await res.json();
+    const sel = document.getElementById('db-section-filter');
+    sel.innerHTML = '<option value="">All Sections</option>';
+    sections.forEach(s => {
+      sel.innerHTML += `<option value="${esc(s)}">${esc(s)}</option>`;
+    });
+  } catch(e) {}
+}
+
+// Store current page rows for checkbox reference
+let currentDbRows = [];
+
+async function loadDbPage() {
+  const search = document.getElementById('db-search').value.trim();
+  const section = document.getElementById('db-section-filter').value;
+  const tbody = document.getElementById('db-body');
+  tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:30px"><span class="spinner"></span></td></tr>';
+
+  try {
+    let url;
+    if (search && search.length >= 2) {
+      url = `/api/labor/search?q=${encodeURIComponent(search)}&n=50`;
+      const res = await fetch(url);
+      const data = await res.json();
+      currentDbRows = data;
+      renderDbRows(data);
+      document.getElementById('db-total').textContent = `${data.length} results`;
+      document.getElementById('db-pagination').innerHTML = '';
+    } else {
+      url = `/api/labor/browse?page=${dbPage}&per_page=50&section=${encodeURIComponent(section)}&search=${encodeURIComponent(search)}`;
+      const res = await fetch(url);
+      const data = await res.json();
+      currentDbRows = data.data;
+      renderDbRows(data.data);
+      document.getElementById('db-total').textContent = `${data.total.toLocaleString()} entries`;
+      renderDbPagination(data);
+    }
+  } catch(e) {
+    tbody.innerHTML = `<tr><td colspan="8" style="color:var(--red)">Error loading data</td></tr>`;
+  }
+
+  // Reset select-all checkbox
+  document.getElementById('db-select-all').checked = false;
+}
+
+function renderDbRows(rows) {
+  const tbody = document.getElementById('db-body');
+  if (!rows.length) {
+    tbody.innerHTML = '<tr><td colspan="8" class="empty-state" style="padding:40px"><div class="empty-icon">&#128269;</div><div class="empty-title">No results found</div><div class="empty-desc">Try a different search term or clear your filters</div></td></tr>';
+    return;
+  }
+
+  let html = '';
+  let lastGroup = '';
+  rows.forEach((r, idx) => {
+    const groupKey = `${r.Section}|${r.Category}`;
+    if (groupKey !== lastGroup) {
+      lastGroup = groupKey;
+      html += `<tr class="db-group-header"><td colspan="8">
+        ${esc(r.Section)} <span class="group-category">&rsaquo; ${esc(r.Category)}</span>
+      </td></tr>`;
+    }
+    const key = dbItemKey(r);
+    const isSelected = dbSelectedItems.has(key);
+    html += `
+    <tr class="${isSelected ? 'selected-row' : ''}" style="cursor:pointer" onclick="toggleRowCheckbox(this, ${idx})">
+      <td><input type="checkbox" class="db-check" data-idx="${idx}" ${isSelected ? 'checked' : ''}
+           onclick="event.stopPropagation(); toggleDbItemByIdx(${idx}, this)"></td>
+      <td>${esc(r.Item)}</td>
+      <td class="text-right mono">${r.Easy}</td>
+      <td class="text-right mono" style="font-weight:600">${r.Average}</td>
+      <td class="text-right mono">${r.Difficult}</td>
+      <td class="text-right mono">${r.Remodel}</td>
+      <td class="text-right mono">${r.Old_Work}</td>
+      <td class="text-center">${r.Unit === 'C' ? '/100' : r.Unit === 'M' ? '/1000' : '/ea'}</td>
+    </tr>`;
+  });
+  tbody.innerHTML = html;
+}
+
+function toggleRowCheckbox(tr, idx) {
+  const cb = tr.querySelector('.db-check');
+  cb.checked = !cb.checked;
+  toggleDbItemByIdx(idx, cb);
+}
+
+function toggleDbItemByIdx(idx, checkbox) {
+  const rowData = currentDbRows[idx];
+  if (!rowData) return;
+  toggleDbItem(checkbox, rowData);
+}
+
+function renderDbPagination(data) {
+  const el = document.getElementById('db-pagination');
+  if (data.pages <= 1) { el.innerHTML = ''; return; }
+  el.innerHTML = `
+    <button class="btn btn-secondary btn-sm" ${data.page <= 1 ? 'disabled' : ''} onclick="dbPage=${data.page-1};loadDbPage()">Prev</button>
+    <span>Page ${data.page} of ${data.pages}</span>
+    <button class="btn btn-secondary btn-sm" ${data.page >= data.pages ? 'disabled' : ''} onclick="dbPage=${data.page+1};loadDbPage()">Next</button>
+  `;
+}
+
+// DB search debounce
+document.getElementById('db-search').addEventListener('input', () => {
+  clearTimeout(dbSearchTimeout);
+  dbSearchTimeout = setTimeout(() => { dbPage = 1; loadDbPage(); }, 300);
+});
+document.getElementById('db-section-filter').addEventListener('change', () => { dbPage = 1; loadDbPage(); });
+
+// ============================================================================
+// INIT
+// ============================================================================
+addPartRows(3);
+loadDbSections();
+loadDbPage();
+
+// Restore history from localStorage
+if (estimateHistory.length > 0) {
+  activeHistoryIdx = 0;
+  estimateResults = estimateHistory[0].results;
+  estimateTotals = estimateHistory[0].totals;
+  renderResults();
+  renderHistory();
+}
+</script>
+</body>
+</html>
