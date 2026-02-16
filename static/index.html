@@ -1127,7 +1127,8 @@ function renderResults() {
     </div>
     <div class="stat-card">
       <div class="stat-label">Material Cost</div>
-      <div class="stat-value">${t.total_material_cost > 0 ? '$'+t.total_material_cost.toLocaleString(undefined,{minimumFractionDigits:2}) : 'N/A'}</div>
+      <div class="stat-value">${t.total_material_cost > 0 ? '$'+t.total_material_cost.toLocaleString(undefined,{minimumFractionDigits:2}) : '$0.00'}</div>
+      ${t.total_material_cost === 0 ? '<div style="font-size:11px;color:var(--text2);margin-top:4px">Platt requires login for pricing</div>' : ''}
     </div>
     <div class="stat-card">
       <div class="stat-label">Labor Hours</div>
@@ -1302,17 +1303,34 @@ function clearHistory() {
 // ============================================================================
 function exportCSV() {
   if (!estimateResults) return;
-  const headers = ['Part','Quantity','Labor Match','Confidence','Labor Hours','Labor Cost','Material Cost','Total Cost'];
+  const headers = ['Part','Quantity','Unit','Labor Match','Confidence (%)','Labor Hours','Labor Cost','Material Cost','Platt Product','Platt URL','Total Cost'];
   let csv = headers.join(',') + '\n';
   estimateResults.forEach(r => {
     csv += [
-      `"${r.part}"`, r.quantity, `"${r.labor_match || ''}"`, r.labor_confidence || 0,
-      r.labor_hours, r.labor_cost, r.material_cost, r.total_cost
+      csvEsc(r.part),
+      r.quantity,
+      csvEsc(r.qty_unit || ''),
+      csvEsc(r.labor_match || ''),
+      r.labor_confidence || 0,
+      r.labor_hours,
+      r.labor_cost,
+      r.material_cost || 0,
+      csvEsc(r.platt_name || ''),
+      csvEsc(r.platt_url || ''),
+      r.total_cost
     ].join(',') + '\n';
   });
-  csv += `\n"TOTALS",,,,${estimateTotals.total_labor_hours},${estimateTotals.total_labor_cost},${estimateTotals.total_material_cost},${estimateTotals.total_cost}\n`;
+  csv += `\n"TOTALS",,,,,${estimateTotals.total_labor_hours},${estimateTotals.total_labor_cost},${estimateTotals.total_material_cost},,,$${estimateTotals.total_cost}\n`;
   downloadBlob(csv, 'project_estimate.csv', 'text/csv');
   showToast('CSV downloaded');
+}
+
+function csvEsc(s) {
+  s = String(s);
+  if (s.includes(',') || s.includes('"') || s.includes('\n')) {
+    return '"' + s.replace(/"/g, '""') + '"';
+  }
+  return '"' + s + '"';
 }
 
 async function exportReport() {
