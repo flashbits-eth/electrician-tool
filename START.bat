@@ -1,8 +1,8 @@
 @echo off
-title ABM Electrical Estimator
+title Electrical Estimator
 echo.
 echo  ============================================
-echo   ABM Electrical Estimator - Starting Up...
+echo   Electrical Estimator - Starting Up...
 echo  ============================================
 echo.
 

@@ -1,5 +1,5 @@
 """
-Launcher for the ABM Electrical Estimator.
+Launcher for the Electrical Estimator.
 This is the entry point for the PyInstaller .exe build.
 Opens the browser automatically and starts the Flask server.
 """
@@ -34,7 +34,7 @@ if __name__ == '__main__':
 
     print()
     print('  ============================================')
-    print('   ABM Electrical Estimator')
+    print('   Electrical Estimator')
     print('   Running at http://localhost:5000')
     print('   Close this window to stop the server.')
     print('  ============================================')

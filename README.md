@@ -1,6 +1,6 @@
-# ABM Electrical Estimator
+# Electrical Estimator
 
-**Internal prototype tool for electrical project cost estimation.**
+**Prototype tool for electrical project cost estimation.**
 
 Combines a 4,396-entry labor units database (sourced from the 2025 Labor Units Manual) with optional Platt.com product lookups to generate detailed cost estimates for electrical work.
 
@@ -9,7 +9,7 @@ Combines a 4,396-entry labor units database (sourced from the 2025 Labor Units M
 ## Quick Start (Executable Version)
 
 1. Unzip the folder
-2. Double-click **`ABM Electrical Estimator.exe`**
+2. Double-click **`Electrical Estimator.exe`**
 3. The app opens automatically in your default browser at `http://localhost:5000`
 4. Close the console window to stop the server
 
@@ -65,7 +65,7 @@ User's Browser  <-->  Local Flask Server (localhost:5000)  <-->  Labor DB (CSV f
 
 | File | Purpose |
 |---|---|
-| `ABM Electrical Estimator.exe` | Application launcher (PyInstaller bundle) |
+| `Electrical Estimator.exe` | Application launcher (PyInstaller bundle) |
 | `_internal/` | Bundled Python runtime and dependencies |
 | `data/labor_units_db.csv` | Labor units database (4,396 entries, ~330 KB) |
 | `static/index.html` | Complete UI &mdash; single-page application (HTML/CSS/JS) |
@@ -92,8 +92,7 @@ User's Browser  <-->  Local Flask Server (localhost:5000)  <-->  Labor DB (CSV f
 |---|---|---|---|
 | **Labor matching & cost calculation** | Local only | All computation runs on the user's machine | None |
 | **Platt.com product lookup** | `www.platt.com` | Optional &mdash; searches for matching products when "Fetch Platt Prices" is checked | Low &mdash; standard HTTP GET requests, same as visiting the site in a browser |
-| **Google Fonts** | `fonts.googleapis.com` | Loads the Titillium Web font for ABM brand consistency | None &mdash; standard CDN, no data sent |
-| **ABM Logo** | `cdn.brandfetch.io` | Loads the ABM logo SVG &mdash; fails gracefully if unavailable | None &mdash; read-only CDN fetch |
+| **Google Fonts** | `fonts.googleapis.com` | Loads the Titillium Web font for UI styling | None &mdash; standard CDN, no data sent |
 
 ### What Does NOT Happen
 
@@ -132,7 +131,7 @@ The labor units database (`data/labor_units_db.csv`) contains only labor hour va
 
 ## Offline Usage
 
-The tool works fully offline for labor-based estimation. The only feature that requires internet is **Fetch Platt Prices** (which can be unchecked). If offline, the Google Font and ABM logo will not load, but the UI falls back to system fonts and hides the logo gracefully.
+The tool works fully offline for labor-based estimation. The only feature that requires internet is **Fetch Platt Prices** (which can be unchecked). If offline, the Google Font will not load, but the UI falls back to system fonts gracefully.
 
 ---
 
@@ -150,7 +149,7 @@ python app.py
 ```bash
 pip install pyinstaller
 python -m PyInstaller --noconfirm --onedir --console \
-    --name "ABM Electrical Estimator" \
+    --name "Electrical Estimator" \
     --add-data "static;static" \
     --add-data "data/labor_units_db.csv;data" \
     --hidden-import flask_cors \
@@ -161,15 +160,15 @@ python -m PyInstaller --noconfirm --onedir --console \
     launcher.py
 
 # Copy data and static folders next to the exe:
-cp -r static dist/"ABM Electrical Estimator"/
-cp data/labor_units_db.csv dist/"ABM Electrical Estimator"/data/
+cp -r static dist/"Electrical Estimator"/
+cp data/labor_units_db.csv dist/"Electrical Estimator"/data/
 ```
 
 ---
 
 ## Limitations
 
-- **Prototype / internal tool** &mdash; not hardened for public-facing deployment
+- **Prototype** &mdash; not hardened for public-facing deployment
 - **Single user** &mdash; designed for one person running locally, not multi-user
 - **Platt pricing** &mdash; Platt.com renders prices client-side after login; this tool retrieves product names and links but not live pricing
 - **Fuzzy matching** &mdash; labor lookups use approximate string matching; low-confidence matches are flagged for manual review
